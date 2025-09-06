@@ -36,7 +36,7 @@ async function testGeminiKey() {
     console.log("❌ API key test failed:");
     console.error(error);
     
-    if (error.message?.includes('API_KEY_INVALID')) {
+    if (error instanceof Error && error.message?.includes('API_KEY_INVALID')) {
       console.log("\n💡 Solutions:");
       console.log("1. Get a new API key from https://aistudio.google.com/app/apikey");
       console.log("2. Make sure you copied the complete key");
