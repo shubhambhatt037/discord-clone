@@ -4,9 +4,10 @@
   "private": true,
   "scripts": {
     "dev": "next dev",
-    "build": "next build",
+    "build": "prisma generate && next build",
     "start": "next start",
     "lint": "next lint",
+    "postinstall": "prisma generate",
     "setup-ai-bot": "npx tsx scripts/setup-ai-bot.ts",
     "test-ai-bot": "npx tsx scripts/test-ai-bot.ts",
     "test-gemini-key": "npx tsx scripts/test-gemini-key.ts"
