@@ -4,6 +4,7 @@ import { MemberRole } from "@prisma/client";
 
 import { currentProfile } from "@/lib/current-profile";
 import { db } from "@/lib/db";
+import { ensureAIBotInServer } from "@/lib/ai-bot";
 
 export async function POST(req: Request) {
   try {
@@ -32,6 +33,14 @@ export async function POST(req: Request) {
         }
       }
     });
+
+    // Add AI bot to the new server
+    try {
+      await ensureAIBotInServer(server.id);
+    } catch (error) {
+      console.log("[AI_BOT_SETUP]", error);
+      // Don't fail server creation if bot setup fails
+    }
 
     return NextResponse.json(server);
   } catch (error) {

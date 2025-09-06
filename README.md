@@ -1,6 +1,9 @@
-<<<<<<< HEAD
-# discord-clone
-Real time Chat Application
+# ConnectSphere
+Real-time communication platform for teams and communities
+
+## About ConnectSphere
+ConnectSphere is a modern, feature-rich communication platform that brings teams and communities together. Built with cutting-edge technologies, it offers seamless real-time messaging, voice/video calls, file sharing, and AI-powered conversation summaries.
+
 =======
 This is a [Next.js](https://nextjs.org/) project bootstrapped with [`create-next-app`](https://github.com/vercel/next.js/tree/canary/packages/create-next-app).
 

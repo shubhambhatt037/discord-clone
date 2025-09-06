@@ -14,6 +14,7 @@ model Profile {
   name      String
   imageUrl  String    @db.Text
   email     String    @db.Text
+  isBot     Boolean   @default(false)
   createdAt DateTime  @default(now())
   updatedAt DateTime  @updatedAt
   servers   Server[]
@@ -65,6 +66,7 @@ model Channel {
   profile   Profile     @relation(fields: [profileId], references: [id], onDelete: Cascade)
   server    Server      @relation(fields: [serverId], references: [id], onDelete: Cascade)
   messages  Message[]
+  summaries Summary[]
 
   @@index([profileId])
   @@index([serverId])
@@ -112,6 +114,18 @@ model DirectMessage {
 
   @@index([memberId])
   @@index([conversationId])
+}
+
+model Summary {
+  id        String   @id @default(uuid())
+  content   String   @db.Text
+  channelId String
+  messageCount Int
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  channel   Channel  @relation(fields: [channelId], references: [id], onDelete: Cascade)
+
+  @@index([channelId])
 }
 
 enum MemberRole {

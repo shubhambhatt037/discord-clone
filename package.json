@@ -1,22 +1,27 @@
 {
-  "name": "my-discordclone",
+  "name": "connectsphere",
   "version": "0.1.0",
   "private": true,
   "scripts": {
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "next lint"
+    "lint": "next lint",
+    "setup-ai-bot": "npx tsx scripts/setup-ai-bot.ts",
+    "test-ai-bot": "npx tsx scripts/test-ai-bot.ts",
+    "test-gemini-key": "npx tsx scripts/test-gemini-key.ts"
   },
   "dependencies": {
     "@clerk/nextjs": "^4.29.5",
     "@emoji-mart/data": "^1.1.2",
     "@emoji-mart/react": "^1.1.1",
+    "@google/generative-ai": "^0.24.1",
     "@hookform/resolvers": "^3.3.4",
     "@livekit/components-react": "^1.5.3",
     "@livekit/components-styles": "^1.0.9",
     "@prisma/client": "^5.8.1",
     "@radix-ui/react-avatar": "^1.0.4",
+    "@radix-ui/react-collapsible": "^1.1.12",
     "@radix-ui/react-dialog": "^1.0.5",
     "@radix-ui/react-dropdown-menu": "^2.0.6",
     "@radix-ui/react-label": "^2.0.2",
@@ -33,11 +38,12 @@
     "clsx": "^2.1.0",
     "cmdk": "^0.2.1",
     "date-fns": "^3.3.1",
+    "dotenv": "^17.2.2",
     "emoji-mart": "^5.5.2",
     "livekit-client": "^1.15.11",
     "livekit-server-sdk": "^1.2.7",
     "lucide-react": "^0.314.0",
-    "next": "13.12.4",
+    "next": "13.5.6",
     "next-themes": "^0.2.1",
     "query-string": "^8.1.0",
     "react": "^18",
@@ -64,6 +70,7 @@
     "postcss": "^8",
     "prisma": "^5.9.1",
     "tailwindcss": "^3.4.1",
+    "tsx": "^4.20.5",
     "typescript": "^5"
   }
 }

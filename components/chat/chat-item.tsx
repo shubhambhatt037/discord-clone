@@ -6,7 +6,7 @@ import qs from "query-string";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Member, MemberRole, Profile } from "@prisma/client";
-import { Edit, FileIcon, ShieldAlert, ShieldCheck, Trash } from "lucide-react";
+import { Edit, FileIcon, ShieldAlert, ShieldCheck, Trash, Bot } from "lucide-react";
 import Image from "next/image";
 import { useEffect, useState } from "react";
 import { useRouter, useParams } from "next/navigation";
@@ -126,9 +126,13 @@ export const ChatItem = ({
   const canEditMessage = !deleted && isOwner && !fileUrl;
   const isPDF = fileType === "pdf" && fileUrl;
   const isImage = !isPDF && fileUrl;
+  const isBot = member.profile.isBot;
 
   return (
-    <div className="relative group flex items-center hover:bg-black/5 p-4 transition w-full">
+    <div className={cn(
+      "relative group flex items-center hover:bg-black/5 p-4 transition w-full",
+      isBot && "bg-blue-50/50 dark:bg-blue-950/20 border-l-4 border-l-blue-500"
+    )}>
       <div className="group flex gap-x-2 items-start w-full">
         <div onClick={onMemberClick} className="cursor-pointer hover:drop-shadow-md transition">
           <UserAvatar src={member.profile.imageUrl} />
@@ -136,12 +140,22 @@ export const ChatItem = ({
         <div className="flex flex-col w-full">
           <div className="flex items-center gap-x-2">
             <div className="flex items-center">
-              <p onClick={onMemberClick} className="font-semibold text-sm hover:underline cursor-pointer">
+              <p onClick={onMemberClick} className={cn(
+                "font-semibold text-sm hover:underline cursor-pointer",
+                isBot && "text-blue-600 dark:text-blue-400"
+              )}>
                 {member.profile.name}
               </p>
-              <ActionTooltip label={member.role}>
-                {roleIconMap[member.role]}
-              </ActionTooltip>
+              {isBot && (
+                <ActionTooltip label="AI Bot">
+                  <Bot className="h-4 w-4 ml-2 text-blue-500" />
+                </ActionTooltip>
+              )}
+              {!isBot && (
+                <ActionTooltip label={member.role}>
+                  {roleIconMap[member.role]}
+                </ActionTooltip>
+              )}
             </div>
             <span className="text-xs text-zinc-500 dark:text-zinc-400">
               {timestamp}
@@ -176,17 +190,22 @@ export const ChatItem = ({
             </div>
           )}
           {!fileUrl && !isEditing && (
-            <p className={cn(
+            <div className={cn(
               "text-sm text-zinc-600 dark:text-zinc-300",
-              deleted && "italic text-zinc-500 dark:text-zinc-400 text-xs mt-1"
+              deleted && "italic text-zinc-500 dark:text-zinc-400 text-xs mt-1",
+              isBot && "bg-white/50 dark:bg-zinc-800/50 p-3 rounded-md border"
             )}>
-              {content}
+              {isBot ? (
+                <div className="whitespace-pre-wrap">{content}</div>
+              ) : (
+                content
+              )}
               {isUpdated && !deleted && (
                 <span className="text-[10px] mx-2 text-zinc-500 dark:text-zinc-400">
                   (edited)
                 </span>
               )}
-            </p>
+            </div>
           )}
           {!fileUrl && isEditing && (
             <Form {...form}>
@@ -222,7 +241,7 @@ export const ChatItem = ({
           )}
         </div>
       </div>
-      {canDeleteMessage && (
+      {canDeleteMessage && !isBot && (
         <div className="hidden group-hover:flex items-center gap-x-2 absolute p-1 -top-2 right-5 bg-white dark:bg-zinc-800 border rounded-sm">
           {canEditMessage && (
             <ActionTooltip label="Edit">
