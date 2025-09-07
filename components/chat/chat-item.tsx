@@ -97,8 +97,12 @@ export const ChatItem = ({
 
   const onSubmit = async (values: z.infer<typeof formSchema>) => {
     try {
+      const apiUrl = socketUrl.includes("direct-messages") 
+        ? `/api/direct-messages/${id}`
+        : `/api/messages/${id}`;
+        
       const url = qs.stringifyUrl({
-        url: `${socketUrl}/${id}`,
+        url: apiUrl,
         query: socketQuery,
       });
 
@@ -106,6 +110,7 @@ export const ChatItem = ({
 
       form.reset();
       setIsEditing(false);
+      router.refresh();
     } catch (error) {
       console.log(error);
     }
@@ -254,7 +259,9 @@ export const ChatItem = ({
           <ActionTooltip label="Delete">
             <Trash
               onClick={() => onOpen("deleteMessage", { 
-                apiUrl: `${socketUrl}/${id}`,
+                apiUrl: socketUrl.includes("direct-messages") 
+                  ? `/api/direct-messages/${id}`
+                  : `/api/messages/${id}`,
                 query: socketQuery,
                })}
               className="cursor-pointer ml-auto w-4 h-4 text-zinc-500 hover:text-zinc-600 dark:hover:text-zinc-300 transition"
