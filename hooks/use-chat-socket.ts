@@ -26,14 +26,18 @@ export const useChatSocket = ({
 
   useEffect(() => {
     if (!channelId || !pusherClient) {
+      console.log("Pusher not available:", { channelId, pusherClient: !!pusherClient });
       return;
     }
+
+    console.log("Subscribing to Pusher channel:", `channel-${channelId}`);
 
     // Subscribe to the Pusher channel
     const channel = pusherClient.subscribe(`channel-${channelId}`);
 
     // Listen for new messages
     channel.bind("new-message", (message: MessageWithMemberWithProfile) => {
+      console.log("Received new message via Pusher:", message);
       queryClient.setQueryData([queryKey], (oldData: any) => {
         if (!oldData || !oldData.pages || oldData.pages.length === 0) {
           return {
@@ -62,6 +66,7 @@ export const useChatSocket = ({
 
     // Listen for message updates
     channel.bind("message-update", (message: MessageWithMemberWithProfile) => {
+      console.log("Received message update via Pusher:", message);
       queryClient.setQueryData([queryKey], (oldData: any) => {
         if (!oldData || !oldData.pages || oldData.pages.length === 0) {
           return oldData;

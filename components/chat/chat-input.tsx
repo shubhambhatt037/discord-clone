@@ -65,10 +65,17 @@ export const ChatInput = ({
       // Trigger Pusher for real-time updates
       if (response.data) {
         try {
+          console.log("Triggering Pusher event for new message:", {
+            channelId: query.channelId || query.conversationId,
+            messageId: response.data.id
+          });
+          
           await axios.post("/api/pusher/messages", {
             channelId: query.channelId || query.conversationId,
             message: response.data
           });
+          
+          console.log("Pusher event triggered successfully");
         } catch (pusherError) {
           console.log("Pusher error (non-critical):", pusherError);
         }

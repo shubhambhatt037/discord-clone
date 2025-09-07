@@ -31,9 +31,9 @@ export const SocketProvider = ({
   const [isConnected, setIsConnected] = useState(false);
 
   useEffect(() => {
-    // Temporarily disable real-time features until Pusher env vars are set
-    if (process.env.NODE_ENV === "production" && !process.env.NEXT_PUBLIC_PUSHER_KEY) {
-      console.log("Pusher disabled - environment variables not set");
+    // Check if Pusher environment variables are available
+    if (!process.env.NEXT_PUBLIC_PUSHER_KEY) {
+      console.log("Pusher disabled - NEXT_PUBLIC_PUSHER_KEY not set");
       setIsConnected(false);
       return;
     }
