@@ -59,10 +59,29 @@ export const MessageFileModal = () => {
         query,
       });
 
-      await axios.post(url, {
+      const response = await axios.post(url, {
         ...values,
         content: values.fileUrl,
       });
+
+      // Trigger Pusher for real-time updates
+      if (response.data) {
+        try {
+          console.log("Triggering Pusher event for file upload:", {
+            channelId: query?.channelId || query?.conversationId,
+            messageId: response.data.id
+          });
+          
+          await axios.post("/api/pusher/messages", {
+            channelId: query?.channelId || query?.conversationId,
+            message: response.data
+          });
+          
+          console.log("Pusher event triggered successfully for file");
+        } catch (pusherError) {
+          console.log("Pusher error (non-critical):", pusherError);
+        }
+      }
 
       form.reset();
       router.refresh();
