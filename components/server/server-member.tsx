@@ -1,7 +1,7 @@
 "use client";
 
 import { Member, MemberRole, Profile, Server } from "@prisma/client";
-import { ShieldAlert, ShieldCheck } from "lucide-react";
+import { ShieldAlert, ShieldCheck, Bot } from "lucide-react";
 import { useParams, useRouter } from "next/navigation";
 
 import { cn } from "@/lib/utils";
@@ -50,8 +50,15 @@ export const ServerMember = ({
         )}
       >
         {member.profile.name}
+        {member.profile.isBot && (
+          <span className="ml-1 text-xs bg-blue-500 text-white px-1 rounded">BOT</span>
+        )}
       </p>
-      {icon}
+      {member.profile.isBot ? (
+        <Bot className="h-4 w-4 ml-2 text-blue-500" />
+      ) : (
+        icon
+      )}
     </button>
   )
 }
