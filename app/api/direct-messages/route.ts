@@ -81,3 +81,88 @@ export async function GET(
     return new NextResponse("Internal Error", { status: 500 });
   }
 }
+
+export async function POST(
+  req: Request
+) {
+  try {
+    const profile = await currentProfile();
+    const { content, fileUrl } = await req.json();
+    const { searchParams } = new URL(req.url);
+
+    const conversationId = searchParams.get("conversationId");
+
+    if (!profile) {
+      return new NextResponse("Unauthorized", { status: 401 });
+    }
+
+    if (!conversationId) {
+      return new NextResponse("Conversation ID missing", { status: 400 });
+    }
+
+    if (!content) {
+      return new NextResponse("Content missing", { status: 400 });
+    }
+
+    const conversation = await db.conversation.findFirst({
+      where: {
+        id: conversationId,
+        OR: [
+          {
+            memberOne: {
+              profileId: profile.id,
+            }
+          },
+          {
+            memberTwo: {
+              profileId: profile.id,
+            }
+          }
+        ]
+      },
+      include: {
+        memberOne: {
+          include: {
+            profile: true,
+          }
+        },
+        memberTwo: {
+          include: {
+            profile: true,
+          }
+        }
+      }
+    });
+
+    if (!conversation) {
+      return new NextResponse("Conversation not found", { status: 404 });
+    }
+
+    const member = conversation.memberOne.profileId === profile.id ? conversation.memberOne : conversation.memberTwo;
+
+    if (!member) {
+      return new NextResponse("Member not found", { status: 404 });
+    }
+
+    const message = await db.directMessage.create({
+      data: {
+        content,
+        fileUrl,
+        conversationId: conversationId,
+        memberId: member.id,
+      },
+      include: {
+        member: {
+          include: {
+            profile: true,
+          }
+        }
+      }
+    });
+
+    return NextResponse.json(message);
+  } catch (error) {
+    console.log("[DIRECT_MESSAGES_POST]", error);
+    return new NextResponse("Internal Error", { status: 500 });
+  }
+}

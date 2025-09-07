@@ -60,20 +60,12 @@ export const ChatInput = ({
       });
 
       // Send message to database
-      const response = await axios.post(url, values);
-
-      // Also trigger Pusher for real-time updates
-      if (response.data) {
-        await axios.post("/api/pusher/messages", {
-          channelId: query.channelId || query.conversationId,
-          message: response.data
-        });
-      }
+      await axios.post(url, values);
 
       form.reset();
       router.refresh();
     } catch (error) {
-      console.log(error);
+      console.log("Error sending message:", error);
     }
   }
 
