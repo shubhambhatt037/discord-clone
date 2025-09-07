@@ -138,6 +138,10 @@ export async function PATCH(
       return new NextResponse("Channel ID missing", { status: 400 });
     }
 
+    if (!content) {
+      return new NextResponse("Content missing", { status: 400 });
+    }
+
     const server = await db.server.findFirst({
       where: {
         id: serverId,
@@ -192,14 +196,8 @@ export async function PATCH(
     }
 
     const isMessageOwner = message.memberId === member.id;
-    const isAdmin = member.role === MemberRole.ADMIN;
-    const isModerator = member.role === MemberRole.MODERATOR;
-    const canModify = isMessageOwner || isAdmin || isModerator;
 
-    if (!canModify) {
-      return new NextResponse("Unauthorized", { status: 401 });
-    }
-
+    // Only message owner can edit messages
     if (!isMessageOwner) {
       return new NextResponse("Unauthorized", { status: 401 });
     }
@@ -223,6 +221,7 @@ export async function PATCH(
     return NextResponse.json(message);
   } catch (error) {
     console.log("[MESSAGE_ID_PATCH]", error);
+    console.log("Error details:", error);
     return new NextResponse("Internal Error", { status: 500 });
   }
 }

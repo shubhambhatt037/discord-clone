@@ -133,6 +133,10 @@ export async function PATCH(
       return new NextResponse("Conversation ID missing", { status: 400 });
     }
 
+    if (!content) {
+      return new NextResponse("Content missing", { status: 400 });
+    }
+
     const conversation = await db.conversation.findFirst({
       where: {
         id: conversationId,

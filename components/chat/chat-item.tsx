@@ -112,7 +112,9 @@ export const ChatItem = ({
       setIsEditing(false);
       router.refresh();
     } catch (error) {
-      console.log(error);
+      console.log("Error editing message:", error);
+      console.log("Socket URL:", socketUrl);
+      console.log("Query params:", socketQuery);
     }
   }
 
