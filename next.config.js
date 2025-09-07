@@ -14,34 +14,15 @@ const nextConfig = {
       "utfs.io"
     ]
   },
-  // Enable experimental features for better Vercel compatibility
+  // Optimize for production
   experimental: {
-    serverComponentsExternalPackages: ["socket.io"]
+    serverComponentsExternalPackages: ["pusher"]
   },
-  // Ensure API routes work properly on Vercel
-  async headers() {
-    return [
-      {
-        source: "/api/socket/io",
-        headers: [
-          {
-            key: "Access-Control-Allow-Origin",
-            value: process.env.NODE_ENV === "production" 
-              ? "https://connectsphere-gray.vercel.app"
-              : "http://localhost:3000"
-          },
-          {
-            key: "Access-Control-Allow-Methods",
-            value: "GET, POST, PUT, DELETE, OPTIONS"
-          },
-          {
-            key: "Access-Control-Allow-Headers",
-            value: "Content-Type, Authorization"
-          }
-        ]
-      }
-    ]
-  }
+  // Enable compression and optimization
+  compress: true,
+  poweredByHeader: false,
+  // Optimize static generation
+  trailingSlash: false
 }
 
 module.exports = nextConfig

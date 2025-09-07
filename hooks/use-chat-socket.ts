@@ -25,7 +25,7 @@ export const useChatSocket = ({
   const queryClient = useQueryClient();
 
   useEffect(() => {
-    if (!channelId) {
+    if (!channelId || !pusherClient) {
       return;
     }
 
@@ -87,7 +87,9 @@ export const useChatSocket = ({
     });
 
     return () => {
-      pusherClient.unsubscribe(`channel-${channelId}`);
+      if (pusherClient) {
+        pusherClient.unsubscribe(`channel-${channelId}`);
+      }
     }
   }, [queryClient, addKey, queryKey, updateKey, channelId]);
 }
