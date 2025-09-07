@@ -9,6 +9,10 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
   try {
     const { channelId, message } = req.body;
 
+    if (!channelId || !message) {
+      return res.status(400).json({ error: "Missing channelId or message" });
+    }
+
     // Trigger the message to all subscribers of this channel
     await pusherServer.trigger(
       `channel-${channelId}`,
@@ -19,6 +23,9 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     res.status(200).json({ success: true });
   } catch (error) {
     console.error("Pusher error:", error);
-    res.status(500).json({ error: "Failed to send message" });
+    res.status(500).json({ 
+      error: "Failed to send message",
+      details: error instanceof Error ? error.message : "Unknown error"
+    });
   }
 }

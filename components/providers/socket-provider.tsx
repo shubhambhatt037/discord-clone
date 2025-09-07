@@ -31,25 +31,45 @@ export const SocketProvider = ({
   const [isConnected, setIsConnected] = useState(false);
 
   useEffect(() => {
-    // Pusher connection state handlers
-    pusherClient.connection.bind("connected", () => {
-      setIsConnected(true);
-      console.log("Pusher connected successfully");
-    });
+    try {
+      // Pusher connection state handlers
+      pusherClient.connection.bind("connected", () => {
+        setIsConnected(true);
+        console.log("Pusher connected successfully");
+      });
 
-    pusherClient.connection.bind("disconnected", () => {
-      setIsConnected(false);
-      console.log("Pusher disconnected");
-    });
+      pusherClient.connection.bind("disconnected", () => {
+        setIsConnected(false);
+        console.log("Pusher disconnected");
+      });
 
-    pusherClient.connection.bind("error", (error: any) => {
-      console.error("Pusher connection error:", error);
+      pusherClient.connection.bind("error", (error: any) => {
+        console.error("Pusher connection error:", error);
+        setIsConnected(false);
+      });
+
+      pusherClient.connection.bind("unavailable", () => {
+        console.warn("Pusher connection unavailable - falling back to polling");
+        setIsConnected(false);
+      });
+
+      pusherClient.connection.bind("failed", () => {
+        console.error("Pusher connection failed");
+        setIsConnected(false);
+      });
+
+    } catch (error) {
+      console.error("Failed to initialize Pusher:", error);
       setIsConnected(false);
-    });
+    }
 
     // Cleanup on unmount
     return () => {
-      pusherClient.connection.unbind_all();
+      try {
+        pusherClient.connection.unbind_all();
+      } catch (error) {
+        console.error("Error cleaning up Pusher:", error);
+      }
     }
   }, []);
 

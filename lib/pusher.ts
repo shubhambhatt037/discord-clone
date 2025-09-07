@@ -3,17 +3,17 @@ import PusherClient from "pusher-js";
 
 // Server-side Pusher instance
 export const pusherServer = new Pusher({
-  appId: process.env.PUSHER_APP_ID!,
-  key: process.env.NEXT_PUBLIC_PUSHER_KEY!,
-  secret: process.env.PUSHER_SECRET!,
-  cluster: process.env.NEXT_PUBLIC_PUSHER_CLUSTER!,
+  appId: process.env.PUSHER_APP_ID || "2047257",
+  key: process.env.NEXT_PUBLIC_PUSHER_KEY || "ee69ac52710e02e0e6bd",
+  secret: process.env.PUSHER_SECRET || "2537341c8a416d788cf2",
+  cluster: process.env.NEXT_PUBLIC_PUSHER_CLUSTER || "ap2",
   useTLS: true,
 });
 
 // Client-side Pusher instance
 export const pusherClient = new PusherClient(
-  process.env.NEXT_PUBLIC_PUSHER_KEY!,
+  process.env.NEXT_PUBLIC_PUSHER_KEY || "ee69ac52710e02e0e6bd",
   {
-    cluster: process.env.NEXT_PUBLIC_PUSHER_CLUSTER!,
+    cluster: process.env.NEXT_PUBLIC_PUSHER_CLUSTER || "ap2",
   }
 );
