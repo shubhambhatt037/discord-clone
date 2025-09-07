@@ -106,7 +106,20 @@ export const ChatItem = ({
         query: socketQuery,
       });
 
-      await axios.patch(url, values);
+      const response = await axios.patch(url, values);
+
+      // Trigger Pusher for real-time updates
+      if (response.data) {
+        try {
+          await axios.post("/api/pusher/messages", {
+            channelId: socketQuery.channelId || socketQuery.conversationId,
+            message: response.data,
+            type: "update"
+          });
+        } catch (pusherError) {
+          console.log("Pusher error (non-critical):", pusherError);
+        }
+      }
 
       form.reset();
       setIsEditing(false);

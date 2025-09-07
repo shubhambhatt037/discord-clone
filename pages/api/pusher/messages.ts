@@ -7,16 +7,19 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
   }
 
   try {
-    const { channelId, message } = req.body;
+    const { channelId, message, type = "new" } = req.body;
 
     if (!channelId || !message) {
       return res.status(400).json({ error: "Missing channelId or message" });
     }
 
+    // Determine event type
+    const eventType = type === "update" ? "message-update" : "new-message";
+
     // Trigger the message to all subscribers of this channel
     await pusherServer.trigger(
       `channel-${channelId}`,
-      "new-message",
+      eventType,
       message
     );
 

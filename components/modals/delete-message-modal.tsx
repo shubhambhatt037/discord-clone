@@ -31,7 +31,20 @@ export const DeleteMessageModal = () => {
         query,
       });
 
-      await axios.delete(url);
+      const response = await axios.delete(url);
+
+      // Trigger Pusher for real-time updates
+      if (response.data) {
+        try {
+          await axios.post("/api/pusher/messages", {
+            channelId: query?.channelId || query?.conversationId,
+            message: response.data,
+            type: "update"
+          });
+        } catch (pusherError) {
+          console.log("Pusher error (non-critical):", pusherError);
+        }
+      }
 
       onClose();
     } catch (error) {

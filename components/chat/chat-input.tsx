@@ -60,7 +60,19 @@ export const ChatInput = ({
       });
 
       // Send message to database
-      await axios.post(url, values);
+      const response = await axios.post(url, values);
+
+      // Trigger Pusher for real-time updates
+      if (response.data) {
+        try {
+          await axios.post("/api/pusher/messages", {
+            channelId: query.channelId || query.conversationId,
+            message: response.data
+          });
+        } catch (pusherError) {
+          console.log("Pusher error (non-critical):", pusherError);
+        }
+      }
 
       form.reset();
       router.refresh();
