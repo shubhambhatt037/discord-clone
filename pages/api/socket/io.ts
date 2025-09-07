@@ -1,35 +1,13 @@
-import { Server as NetServer } from "http";
-import { NextApiRequest } from "next";
-import { Server as ServerIO } from "socket.io";
+import { NextApiRequest, NextApiResponse } from "next";
 
-import { NextApiResponseServerIo } from "@/types";
+// Socket.IO is disabled - using Pusher for real-time features
+// This endpoint returns 404 to stop connection attempts
 
-export const config = {
-  api: {
-    bodyParser: false,
-  },
-};
-
-const ioHandler = (req: NextApiRequest, res: NextApiResponseServerIo) => {
-  if (!res.socket.server.io) {
-    const path = "/api/socket/io";
-    const httpServer: NetServer = res.socket.server as any;
-    const io = new ServerIO(httpServer, {
-      path: path,
-      addTrailingSlash: false,
-      cors: {
-        origin: process.env.NODE_ENV === "production" 
-          ? ["https://connectsphere-gray.vercel.app"]
-          : ["http://localhost:3000"],
-        methods: ["GET", "POST"]
-      },
-      transports: ['websocket', 'polling'],
-      allowEIO3: true
-    });
-    res.socket.server.io = io;
-  }
-
-  res.end();
+const ioHandler = (req: NextApiRequest, res: NextApiResponse) => {
+  res.status(404).json({ 
+    error: "Socket.IO disabled - using Pusher for real-time features",
+    pusher: "Real-time features now powered by Pusher"
+  });
 }
 
 export default ioHandler;

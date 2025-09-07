@@ -6,7 +6,7 @@ import {
   useEffect,
   useState
 } from "react";
-import { io as ClientIO } from "socket.io-client";
+import { pusherClient } from "@/lib/pusher";
 
 type SocketContextType = {
   socket: any | null;
@@ -27,27 +27,29 @@ export const SocketProvider = ({
 }: { 
   children: React.ReactNode 
 }) => {
-  const [socket, setSocket] = useState(null);
+  const [socket, setSocket] = useState(pusherClient);
   const [isConnected, setIsConnected] = useState(false);
 
   useEffect(() => {
-    const socketInstance = new (ClientIO as any)(process.env.NEXT_PUBLIC_SITE_URL!, {
-      path: "/api/socket/io",
-      addTrailingSlash: false,
-    });
-
-    socketInstance.on("connect", () => {
+    // Pusher connection state handlers
+    pusherClient.connection.bind("connected", () => {
       setIsConnected(true);
+      console.log("Pusher connected successfully");
     });
 
-    socketInstance.on("disconnect", () => {
+    pusherClient.connection.bind("disconnected", () => {
+      setIsConnected(false);
+      console.log("Pusher disconnected");
+    });
+
+    pusherClient.connection.bind("error", (error: any) => {
+      console.error("Pusher connection error:", error);
       setIsConnected(false);
     });
 
-    setSocket(socketInstance);
-
+    // Cleanup on unmount
     return () => {
-      socketInstance.disconnect();
+      pusherClient.connection.unbind_all();
     }
   }, []);
 

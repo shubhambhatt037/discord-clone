@@ -1,13 +1,13 @@
 import { useEffect } from "react";
 import { useQueryClient } from "@tanstack/react-query";
 import { Member, Message, Profile } from "@prisma/client";
-
-import { useSocket } from "@/components/providers/socket-provider";
+import { pusherClient } from "@/lib/pusher";
 
 type ChatSocketProps = {
   addKey: string;
   updateKey: string;
   queryKey: string;
+  channelId?: string;
 }
 
 type MessageWithMemberWithProfile = Message & {
@@ -19,42 +19,21 @@ type MessageWithMemberWithProfile = Message & {
 export const useChatSocket = ({
   addKey,
   updateKey,
-  queryKey
+  queryKey,
+  channelId
 }: ChatSocketProps) => {
-  const { socket } = useSocket();
   const queryClient = useQueryClient();
 
   useEffect(() => {
-    if (!socket) {
+    if (!channelId) {
       return;
     }
 
-    socket.on(updateKey, (message: MessageWithMemberWithProfile) => {
-      queryClient.setQueryData([queryKey], (oldData: any) => {
-        if (!oldData || !oldData.pages || oldData.pages.length === 0) {
-          return oldData;
-        }
+    // Subscribe to the Pusher channel
+    const channel = pusherClient.subscribe(`channel-${channelId}`);
 
-        const newData = oldData.pages.map((page: any) => {
-          return {
-            ...page,
-            items: page.items.map((item: MessageWithMemberWithProfile) => {
-              if (item.id === message.id) {
-                return message;
-              }
-              return item;
-            })
-          }
-        });
-
-        return {
-          ...oldData,
-          pages: newData,
-        }
-      })
-    });
-
-    socket.on(addKey, (message: MessageWithMemberWithProfile) => {
+    // Listen for new messages
+    channel.bind("new-message", (message: MessageWithMemberWithProfile) => {
       queryClient.setQueryData([queryKey], (oldData: any) => {
         if (!oldData || !oldData.pages || oldData.pages.length === 0) {
           return {
@@ -81,9 +60,34 @@ export const useChatSocket = ({
       });
     });
 
+    // Listen for message updates
+    channel.bind("message-update", (message: MessageWithMemberWithProfile) => {
+      queryClient.setQueryData([queryKey], (oldData: any) => {
+        if (!oldData || !oldData.pages || oldData.pages.length === 0) {
+          return oldData;
+        }
+
+        const newData = oldData.pages.map((page: any) => {
+          return {
+            ...page,
+            items: page.items.map((item: MessageWithMemberWithProfile) => {
+              if (item.id === message.id) {
+                return message;
+              }
+              return item;
+            })
+          }
+        });
+
+        return {
+          ...oldData,
+          pages: newData,
+        }
+      })
+    });
+
     return () => {
-      socket.off(addKey);
-      socket.off(updateKey);
+      pusherClient.unsubscribe(`channel-${channelId}`);
     }
-  }, [queryClient, addKey, queryKey, socket, updateKey]);
+  }, [queryClient, addKey, queryKey, updateKey, channelId]);
 }
