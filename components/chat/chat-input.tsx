@@ -38,6 +38,9 @@ export const ChatInput = ({
 }: ChatInputProps) => {
   const { onOpen } = useModal();
   const router = useRouter();
+  
+  // Temporarily disable socket for Vercel compatibility
+  // TODO: Replace with Pusher implementation
   const [showCommands, setShowCommands] = useState(false);
 
   const form = useForm<z.infer<typeof formSchema>>({
@@ -56,7 +59,16 @@ export const ChatInput = ({
         query,
       });
 
-      await axios.post(url, values);
+      // Send message to database
+      const response = await axios.post(url, values);
+
+      // Also trigger Pusher for real-time updates
+      if (response.data) {
+        await axios.post("/api/pusher/messages", {
+          channelId: query.channelId || query.conversationId,
+          message: response.data
+        });
+      }
 
       form.reset();
       router.refresh();
