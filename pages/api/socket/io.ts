@@ -16,8 +16,15 @@ const ioHandler = (req: NextApiRequest, res: NextApiResponseServerIo) => {
     const httpServer: NetServer = res.socket.server as any;
     const io = new ServerIO(httpServer, {
       path: path,
-      // @ts-ignore
       addTrailingSlash: false,
+      cors: {
+        origin: process.env.NODE_ENV === "production" 
+          ? ["https://connectsphere-gray.vercel.app"]
+          : ["http://localhost:3000"],
+        methods: ["GET", "POST"]
+      },
+      transports: ['websocket', 'polling'],
+      allowEIO3: true
     });
     res.socket.server.io = io;
   }
