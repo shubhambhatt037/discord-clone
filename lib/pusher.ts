@@ -10,10 +10,12 @@ export const pusherServer = new Pusher({
   useTLS: true,
 });
 
-// Client-side Pusher instance
-export const pusherClient = new PusherClient(
-  process.env.NEXT_PUBLIC_PUSHER_KEY || "ee69ac52710e02e0e6bd",
-  {
-    cluster: process.env.NEXT_PUBLIC_PUSHER_CLUSTER || "ap2",
-  }
-);
+// Client-side Pusher instance - only initialize if we have the key
+export const pusherClient = typeof window !== "undefined" 
+  ? new PusherClient(
+      process.env.NEXT_PUBLIC_PUSHER_KEY || "ee69ac52710e02e0e6bd",
+      {
+        cluster: process.env.NEXT_PUBLIC_PUSHER_CLUSTER || "ap2",
+      }
+    )
+  : null;

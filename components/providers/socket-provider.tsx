@@ -27,11 +27,26 @@ export const SocketProvider = ({
 }: { 
   children: React.ReactNode 
 }) => {
-  const [socket, setSocket] = useState(pusherClient);
+  const [socket, setSocket] = useState(null);
   const [isConnected, setIsConnected] = useState(false);
 
   useEffect(() => {
+    // Temporarily disable real-time features until Pusher env vars are set
+    if (process.env.NODE_ENV === "production" && !process.env.NEXT_PUBLIC_PUSHER_KEY) {
+      console.log("Pusher disabled - environment variables not set");
+      setIsConnected(false);
+      return;
+    }
+
     try {
+      if (!pusherClient) {
+        console.log("Pusher client not available");
+        setIsConnected(false);
+        return;
+      }
+
+      setSocket(pusherClient);
+      
       // Pusher connection state handlers
       pusherClient.connection.bind("connected", () => {
         setIsConnected(true);
@@ -66,7 +81,9 @@ export const SocketProvider = ({
     // Cleanup on unmount
     return () => {
       try {
-        pusherClient.connection.unbind_all();
+        if (pusherClient) {
+          pusherClient.connection.unbind_all();
+        }
       } catch (error) {
         console.error("Error cleaning up Pusher:", error);
       }
